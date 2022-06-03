@@ -1,0 +1,39 @@
+{
+    "name": "phalcon/proxy-psr3",
+    "description": "Phalcon Framework proxy classes for PSR-3",
+    "keywords": [
+        "php",
+        "framework",
+        "phalcon",
+        "psr-3"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4 <9.0",
+        "psr/log": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phalcon\\Logger\\": "fake/Logger/",
+            "Phalcon\\Traits\\": "fake/Traits/",
+            "Phalcon\\Proxy\\Psr3\\": "src/",
+            "Phalcon\\Proxy\\Psr3\\Tests\\Fixtures\\": "tests/_data/fixtures/",
+            "Phalcon\\Proxy\\Psr3\\Tests\\Unit\\": "tests/unit/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.1",
+        "codeception/module-asserts": "^2.0",
+        "codeception/module-filesystem": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.7",
+        "pds/skeleton": "^1.0",
+        "phpstan/phpstan": "^1.4",
+        "squizlabs/php_codesniffer": "^3.6",
+        "vimeo/psalm": "^4.22"
+    }
+}
