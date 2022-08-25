@@ -19,7 +19,7 @@ on:
 
 env:
   # All versions should be declared here
-  PHALCON_VERSION: 5.0.0
+  PHALCON_VERSION: 5.0.0RC4
 
   # For tests
   LANG: en_US.UTF-8
@@ -30,7 +30,7 @@ env:
   TOOLS_DIR: 'C:\tools'
 
   # PHP extensions required by Composer
-  EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, sqlite3, yaml, redis, :memcache
+  EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, phalcon-{{ PHALCON_VERSION }}, sqlite3, yaml, redis, :memcache
 
 jobs:
   phpcs:
@@ -71,6 +71,8 @@ jobs:
           - { php: '7.4', ts: 'nts', arch: 'x64', name: 'windows2019-vc15', os: 'windows-2019', compiler: 'vc15' }
           - { php: '8.0', ts: 'ts',  arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
           - { php: '8.0', ts: 'nts', arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
+          - { php: '8.1', ts: 'ts',  arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
+          - { php: '8.1', ts: 'nts', arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
 
     steps:
       - uses: actions/checkout@v2
@@ -114,10 +116,6 @@ jobs:
       - name: Setup Tests
         shell: bash
         run: |
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            ./config/ci/linux-setup-locales.sh
-          fi
-
           cp tests/_config/.env.default .env
           vendor/bin/codecept build
 #          php tests/_config/generate-db-schemas.php
