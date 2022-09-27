@@ -124,3 +124,11 @@ jobs:
       - name: Run Unit Tests
         if: always()
         run: vendor/bin/codecept run --coverage-xml=coverage-${{ matrix.php }}.xml --ext DotReporter unit
+
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          directory: ./tests/_output/
+          files: coverage-7.4.xml,coverage-8.0.xml,coverage-8.1.xml
