@@ -26,9 +26,6 @@ env:
   LANGUAGE: en_US.UTF-8
   LC_ALL: en_US.UTF-8
 
-  # Windows specific
-  TOOLS_DIR: 'C:\tools'
-
   # PHP extensions required by Composer
   # (adding phalcon version here until I figure out how to use the variable above)
   EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, phalcon-5.0.2, sqlite3, yaml, redis, :memcache
@@ -46,22 +43,13 @@ jobs:
         run: docker run --rm -v $(pwd):/data cytopia/phpcs --standard=./phpcs.xml
 
   build-and-test:
-    name: tests / PHP-${{ matrix.php }}-${{ matrix.ts }}-${{ matrix.name }}-${{ matrix.arch }}
+    name: tests / PHP-${{ matrix.php }}
 
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         php: [ '7.4', '8.0', '8.1' ]
-
-        name:
-          - ubuntu-gcc
-
-        # matrix names should be in next format:
-        #     {php}-{ts}-{os.name}-{compiler}-{arch}
-        include:
-          # Linux
-          - { name: ubuntu-gcc, os: ubuntu-18.04, compiler: gcc }
 
     steps:
       - uses: actions/checkout@v2
@@ -82,7 +70,6 @@ jobs:
           tools: pecl, phpize, php-config, composer:v2
           coverage: xdebug
         env:
-          PHPTS: ${{ matrix.ts }}
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate composer
