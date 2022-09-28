@@ -45,7 +45,7 @@ jobs:
   build-and-test:
     name: tests / PHP-${{ matrix.php }}
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
