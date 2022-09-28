@@ -19,19 +19,16 @@ on:
 
 env:
   # All versions should be declared here
-  PHALCON_VERSION: 5.0.0RC4
+  PHALCON_VERSION: 5.0.2
 
   # For tests
   LANG: en_US.UTF-8
   LANGUAGE: en_US.UTF-8
   LC_ALL: en_US.UTF-8
 
-  # Windows specific
-  TOOLS_DIR: 'C:\tools'
-
   # PHP extensions required by Composer
   # (adding phalcon version here until I figure out how to use the variable above)
-  EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, phalcon-5.0.0RC4, sqlite3, yaml, redis, :memcache
+  EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, phalcon-5.0.2, sqlite3, yaml, redis, :memcache
 
 jobs:
   phpcs:
@@ -46,34 +43,13 @@ jobs:
         run: docker run --rm -v $(pwd):/data cytopia/phpcs --standard=./phpcs.xml
 
   build-and-test:
-    name: tests / PHP-${{ matrix.php }}-${{ matrix.ts }}-${{ matrix.name }}-${{ matrix.arch }}
+    name: tests / PHP-${{ matrix.php }}
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: [ '7.4', '8.0', '8.1' ]
-        ts: [ 'nts', 'ts' ]
-        arch: [ 'x64' ]
-
-        name:
-          - ubuntu-gcc
-          - macos-clang
-
-        # matrix names should be in next format:
-        #     {php}-{ts}-{os.name}-{compiler}-{arch}
-        include:
-          # Linux
-          - { name: ubuntu-gcc, os: ubuntu-18.04, compiler: gcc }
-          # macOS
-          - { name: macos-clang, os: macos-10.15, compiler: clang }
-          # Windows
-          - { php: '7.4', ts: 'ts',  arch: 'x64', name: 'windows2019-vc15', os: 'windows-2019', compiler: 'vc15' }
-          - { php: '7.4', ts: 'nts', arch: 'x64', name: 'windows2019-vc15', os: 'windows-2019', compiler: 'vc15' }
-          - { php: '8.0', ts: 'ts',  arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
-          - { php: '8.0', ts: 'nts', arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
-          - { php: '8.1', ts: 'ts',  arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
-          - { php: '8.1', ts: 'nts', arch: 'x64', name: 'windows2019-vs16', os: 'windows-2019', compiler: 'vs16' }
 
     steps:
       - uses: actions/checkout@v2
@@ -82,7 +58,7 @@ jobs:
         shell: pwsh
         run: |
           git config --global core.autocrlf false
-          $SessionSavePath = if ("${{ runner.os }}" -eq "Windows") { 'C:\temp' } else { '/tmp' }
+          $SessionSavePath = '/tmp' 
           Write-Output "SESSION_SAVE_PATH=$SessionSavePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Setup PHP
@@ -94,7 +70,6 @@ jobs:
           tools: pecl, phpize, php-config, composer:v2
           coverage: xdebug
         env:
-          PHPTS: ${{ matrix.ts }}
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate composer
@@ -124,3 +99,11 @@ jobs:
       - name: Run Unit Tests
         if: always()
         run: vendor/bin/codecept run --coverage-xml=coverage-${{ matrix.php }}.xml --ext DotReporter unit
+
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          directory: ./tests/_output/
+          files: coverage-7.4.xml,coverage-8.0.xml,coverage-8.1.xml

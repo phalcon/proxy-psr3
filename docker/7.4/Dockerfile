@@ -1,18 +1,15 @@
 FROM composer:latest as composer
 FROM php:7.4-fpm
 
-# Compilation parameters
-RUN CPU_CORES="$(getconf _NPROCESSORS_ONLN)";
-ENV MAKEFLAGS="-j${CPU_CORES}"
-
-ADD ./extra.ini /usr/local/etc/php/conf.d/
-
-# User/Group globals
-ENV MY_USER="phalcon" \
+# Environment
+ENV PHALCON_VERSION="5.0.2" \
+    PHP_VERSION="7.4" \
+    MY_USER="phalcon" \
 	MY_GROUP="phalcon" \
 	MY_UID="1000" \
-	MY_GID="1000" \
-	PHP_VERSION="7.4"
+	MY_GID="1000"
+
+ADD ./extra.ini /usr/local/etc/php/conf.d/
 
 # User and Group
 RUN set -eux && \
@@ -32,13 +29,14 @@ RUN apt update -y && \
         zip
 
 # PECL Packages
-RUN pecl install xdebug
+RUN pecl install phalcon-${PHALCON_VERSION} xdebug
 
 RUN docker-php-ext-install \
         zip
 
 # Install PHP extensions
 RUN docker-php-ext-enable \
+        phalcon \
         xdebug
 
 # Composer

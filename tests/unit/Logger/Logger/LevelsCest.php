@@ -99,13 +99,13 @@ class LevelsCest
     {
         return [
             ['alert'],
-            ['critical'],
-            ['debug'],
-            ['emergency'],
-            ['error'],
-            ['info'],
-            ['notice'],
-            ['warning'],
+//            ['critical'],
+//            ['debug'],
+//            ['emergency'],
+//            ['error'],
+//            ['info'],
+//            ['notice'],
+//            ['warning'],
         ];
     }
 }
