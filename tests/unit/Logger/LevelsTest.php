@@ -13,39 +13,35 @@ declare(strict_types=1);
 
 namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
-use Codeception\Example;
 use DateTime;
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
 use function date;
 use function end;
 use function file_get_contents;
-use function logsDir;
 use function preg_match;
 use function strtoupper;
 
 final class LevelsTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: alert()
      *
      * @dataProvider getExamples
      *
-     * @param Example    $example
-     *
      * @author       Phalcon Team <team@phalcon.io>
      * @since        2020-09-09
      */
-    public function testLoggerAlert(, Example $example)
+    public function testLoggerAlert(string $level)
     {
-        $I->wantToTest('Logger - ' . $example[0] . '()');
-
-        $level    = $example[0];
-        $fileName = $I->getNewFileName('log');
-        $fileName = logsDir($fileName);
-        $adapter  = new Stream($fileName);
+        $fileName   = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
+        $adapter  = new Stream($outputPath . $fileName);
         $logger   = new Logger('my-logger', ['one' => $adapter]);
 
         $logString = 'Hello';
@@ -57,18 +53,18 @@ final class LevelsTest extends TestCase
                ->close()
         ;
 
-        $I->amInPath(logsDir());
-        $I->openFile($fileName);
+        $content = file_get_contents($outputPath . $fileName);
 
         // Check if the $logString is in the log file
-        $I->seeInThisFile($logString);
+        $this->assertStringContainsString($logString, $content);
 
         // Check if the level is in the log file
-        $I->seeInThisFile('[' . strtoupper($level) . ']');
+        $this->assertStringContainsString(
+            '[' . strtoupper($level) . ']',
+            $content
+        );
 
         // Check time content
-        $content = file_get_contents($fileName);
-
         // Get time part
         $matches = [];
         preg_match(
@@ -88,23 +84,23 @@ final class LevelsTest extends TestCase
 
         $this->assertLessThan($nSecondThreshold, $nInterval);
 
-        $I->safeDeleteFile($fileName);
+        $this->safeDeleteFile($outputPath . $fileName);
     }
 
     /**
-     * @return string[][]
+     * @return string[]
      */
-    private function getExamples(): array
+    public function getExamples(): array
     {
         return [
             ['alert'],
-//            ['critical'],
-//            ['debug'],
-//            ['emergency'],
-//            ['error'],
-//            ['info'],
-//            ['notice'],
-//            ['warning'],
+            ['critical'],
+            ['debug'],
+            ['emergency'],
+            ['error'],
+            ['info'],
+            ['notice'],
+            ['warning'],
         ];
     }
 }

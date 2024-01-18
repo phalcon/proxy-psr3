@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger\Logger;
+namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Proxy\Psr3\Logger;
 use PHPUnit\Framework\TestCase;
@@ -21,14 +21,11 @@ final class GetNameTest extends TestCase
     /**
      * Tests Phalcon\Logger :: getName()
      *
-     * @param 
-     *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerGetName()
     {
-        $I->wantToTest('Logger - getName()');
         $logger = new Logger('my-name');
 
         $expected = 'my-name';

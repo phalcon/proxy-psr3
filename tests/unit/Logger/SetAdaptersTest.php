@@ -11,28 +11,28 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger\Logger;
+namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
 final class SetAdaptersTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: setAdapters()
-     *
-     * @param 
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerSetAdapters()
     {
-        $I->wantToTest('Logger - setAdapters()');
-        $fileName1  = $I->getNewFileName('log');
-        $fileName2  = $I->getNewFileName('log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
         $adapter2   = new Stream($outputPath . $fileName2);
 
@@ -57,24 +57,21 @@ final class SetAdaptersTest extends TestCase
         $this->assertInstanceOf($class, $adapters['one']);
         $this->assertInstanceOf($class, $adapters['two']);
 
-        $I->safeDeleteFile($outputPath . $fileName1);
-        $I->safeDeleteFile($outputPath . $fileName2);
+        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName2);
     }
 
     /**
      * Tests Phalcon\Logger :: setAdapters() - constructor
-     *
-     * @param 
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerSetAdaptersConstructor()
     {
-        $I->wantToTest('Logger :: setAdapters() - constructor');
-        $fileName1  = $I->getNewFileName('log');
-        $fileName2  = $I->getNewFileName('log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
         $adapter2   = new Stream($outputPath . $fileName2);
 
@@ -94,7 +91,7 @@ final class SetAdaptersTest extends TestCase
         $this->assertInstanceOf($class, $adapters['one']);
         $this->assertInstanceOf($class, $adapters['two']);
 
-        $I->safeDeleteFile($outputPath . $fileName1);
-        $I->safeDeleteFile($outputPath . $fileName2);
+        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName2);
     }
 }

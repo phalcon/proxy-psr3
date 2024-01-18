@@ -15,29 +15,28 @@ namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
-use function logsDir;
+use function file_get_contents;
 use function sprintf;
 use function strtoupper;
 
 final class LogTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: log()
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerLog()
     {
-        $I->wantToTest('Logger - log()');
-
-        $logPath  = logsDir();
-        $fileName = $I->getNewFileName('log');
-        $adapter  = new Stream($logPath . $fileName);
+        $outputPath  = $this->getLogsDirectory();
+        $fileName = $this->getNewFileName('log');
+        $adapter  = new Stream($outputPath . $fileName);
 
         $logger = new Logger(
             'my-logger',
@@ -71,8 +70,7 @@ final class LogTest extends TestCase
             $logger->log($level, 'Message ' . $levelName);
         }
 
-        $I->amInPath($logPath);
-        $I->openFile($fileName);
+        $contents = file_get_contents($outputPath . $fileName);
 
         foreach ($levels as $levelName) {
             $expected = sprintf(
@@ -81,28 +79,24 @@ final class LogTest extends TestCase
                 $levelName
             );
 
-            $I->seeInThisFile($expected);
+            $this->assertStringContainsString($expected, $contents);
         }
 
         $adapter->close();
-        $I->safeDeleteFile($fileName);
+        $this->safeDeleteFile($outputPath . $fileName);
     }
 
     /**
      * Tests Phalcon\Logger :: log() - logLevel
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerLogLogLevel()
     {
-        $I->wantToTest('Logger - log() - logLevel');
-
-        $logPath  = logsDir();
-        $fileName = $I->getNewFileName('log');
-        $adapter  = new Stream($logPath . $fileName);
+        $outputPath  = $this->getLogsDirectory();
+        $fileName = $this->getNewFileName('log');
+        $adapter  = new Stream($outputPath . $fileName);
 
         $logger = new Logger(
             'my-logger',
@@ -145,8 +139,7 @@ final class LogTest extends TestCase
             $logger->log($level, 'Message ' . $levelName);
         }
 
-        $I->amInPath($logPath);
-        $I->openFile($fileName);
+        $contents = file_get_contents($outputPath . $fileName);
 
         foreach ($levelsYes as $levelName) {
             $expected = sprintf(
@@ -154,7 +147,7 @@ final class LogTest extends TestCase
                 strtoupper($levelName),
                 $levelName
             );
-            $I->seeInThisFile($expected);
+            $this->assertStringContainsString($expected, $contents);
         }
 
         foreach ($levelsNo as $levelName) {
@@ -163,10 +156,10 @@ final class LogTest extends TestCase
                 strtoupper($levelName),
                 $levelName
             );
-            $I->dontSeeInThisFile($expected);
+            $this->assertStringNotContainsString($expected, $contents);
         }
 
         $adapter->close();
-        $I->safeDeleteFile($fileName);
+        $this->safeDeleteFile($outputPath . $fileName);
     }
 }

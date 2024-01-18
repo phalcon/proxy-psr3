@@ -11,16 +11,16 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger\Logger;
+namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Proxy\Psr3\Logger;
-use Phalcon\Proxy\Psr3\Tests\Support\SupportTrait;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
 use function file_get_contents;
 
-class AddAdapterTest extends TestCase
+final class AddAdapterTest extends TestCase
 {
     use SupportTrait;
 
@@ -30,10 +30,10 @@ class AddAdapterTest extends TestCase
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
-    public function loggerAddAdapter()
+    public function testLoggerAddAdapter()
     {
-        $fileName1  = $this->getNewFileName('log', 'log');
-        $fileName2  = $this->getNewFileName('log', 'log');
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
         $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
         $adapter2   = new Stream($outputPath . $fileName2);
@@ -60,11 +60,12 @@ class AddAdapterTest extends TestCase
         $adapter2->close();
 
         $contents = file_get_contents($outputPath . $fileName1);
-        $this->assertStringNotContainsString('Hello', $contents);
-        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->assertStringContainsString('[DEBUG] Hello', $contents);
 
         $contents = file_get_contents($outputPath . $fileName2);
-        $this->assertStringNotContainsString('Hello', $contents);
+        $this->assertStringContainsString('Hello', $contents);
+
+        $this->safeDeleteFile($outputPath . $fileName1);
         $this->safeDeleteFile($outputPath . $fileName2);
     }
 }

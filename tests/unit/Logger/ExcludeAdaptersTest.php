@@ -11,29 +11,30 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger\Logger;
+namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
+
+use function file_get_contents;
 
 final class ExcludeAdaptersTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: excludeAdapters()
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerExcludeAdapters()
     {
-        $I->wantToTest('Logger - excludeAdapters()');
-
-        $fileName1  = $I->getNewFileName('log', 'log');
-        $fileName2  = $I->getNewFileName('log', 'log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
         $adapter2   = new Stream($outputPath . $fileName2);
 
@@ -50,13 +51,11 @@ final class ExcludeAdaptersTest extends TestCase
          */
         $logger->debug('Hello');
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName1);
-        $I->seeInThisFile('Hello');
+        $contents = file_get_contents($outputPath . $fileName1);
+        $this->assertStringContainsString('Hello', $contents);
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName2);
-        $I->seeInThisFile('Hello');
+        $contents = file_get_contents($outputPath . $fileName2);
+        $this->assertStringContainsString('Hello', $contents);
 
         /**
          * Exclude a logger
@@ -66,18 +65,16 @@ final class ExcludeAdaptersTest extends TestCase
             ->debug('Goodbye')
         ;
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName1);
-        $I->seeInThisFile('Goodbye');
+        $contents = file_get_contents($outputPath . $fileName1);
+        $this->assertStringContainsString('Goodbye', $contents);
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName2);
-        $I->dontSeeInThisFile('Goodbye');
+        $contents = file_get_contents($outputPath . $fileName2);
+        $this->assertStringNotContainsString('Goodbye', $contents);
 
         $adapter1->close();
         $adapter2->close();
 
-        $I->safeDeleteFile($fileName1);
-        $I->safeDeleteFile($fileName2);
+        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName2);
     }
 }

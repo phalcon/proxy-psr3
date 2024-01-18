@@ -16,10 +16,13 @@ namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Logger\Exception;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
 final class RemoveAdapterTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: removeAdapter()
      *
@@ -28,11 +31,9 @@ final class RemoveAdapterTest extends TestCase
      */
     public function testLoggerRemoveAdapter()
     {
-        $I->wantToTest('Logger - removeAdapter()');
-
-        $fileName1  = $I->getNewFileName('log');
-        $fileName2  = $I->getNewFileName('log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
         $adapter2   = new Stream($outputPath . $fileName2);
 
@@ -53,24 +54,20 @@ final class RemoveAdapterTest extends TestCase
         $adapters = $logger->getAdapters();
         $this->assertCount($expected, $adapters);
 
-        $I->safeDeleteFile($outputPath . $fileName1);
-        $I->safeDeleteFile($outputPath . $fileName2);
+        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName2);
     }
 
     /**
      * Tests Phalcon\Logger :: removeAdapter() - unknown
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerRemoveAdapterUnknown()
     {
-        $I->wantToTest('Logger - removeAdapter() - unknown');
-
-        $fileName1  = $I->getNewFileName('log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
 
         try {
             $adapter1 = new Stream($outputPath . $fileName1);
@@ -93,6 +90,6 @@ final class RemoveAdapterTest extends TestCase
             $this->assertEquals($expected, $actual);
         }
 
-        $I->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName1);
     }
 }

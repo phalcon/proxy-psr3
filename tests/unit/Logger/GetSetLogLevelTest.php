@@ -26,7 +26,6 @@ final class GetSetLogLevelTest extends TestCase
      */
     public function testLoggerGetSetLogLevel()
     {
-        $I->wantToTest('Logger - getLogLevel()/setLogLevel()');
         $logger = new Logger('my-name');
 
         $this->assertEquals(Logger::CUSTOM, $logger->getLogLevel());

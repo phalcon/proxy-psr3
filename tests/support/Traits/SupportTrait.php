@@ -1,16 +1,29 @@
 <?php
 
-namespace Helper;
+namespace Phalcon\Proxy\Psr3\Tests\Support\Traits;
 
-use Codeception\Module;
-use ReflectionClass;
+use function dirname;
+use function file_exists;
+use function gc_collect_cycles;
+use function glob;
+use function is_dir;
+use function is_file;
+use function rmdir;
+use function substr;
+use function uniqid;
+use function unlink;
 
-// here you can define custom actions
-// all public methods declared in helper class will be available in $I
+use const GLOB_MARK;
 
-class Unit extends Module
+trait SupportTrait
 {
-
+    /**
+     * @return string
+     */
+    private function getLogsDirectory(): string
+    {
+        return dirname(dirname(dirname(__FILE__))) . '/support/output/';
+    }
 
     /**
      * Returns a unique file name
@@ -20,7 +33,7 @@ class Unit extends Module
      *
      * @return string
      */
-    public function getNewFileName(string $prefix = '', string $suffix = 'log')
+    private function getNewFileName(string $prefix = '', string $suffix = 'log'): string
     {
         $prefix = ($prefix) ? $prefix . '_' : '';
         $suffix = ($suffix) ?: 'log';
@@ -29,23 +42,9 @@ class Unit extends Module
     }
 
     /**
-     * @throws ReflectionException
-     */
-    public function getProtectedProperty($obj, $prop)
-    {
-        $reflection = new ReflectionClass($obj);
-
-        $property = $reflection->getProperty($prop);
-
-        $property->setAccessible(true);
-
-        return $property->getValue($obj);
-    }
-
-    /**
      * @param string $directory
      */
-    public function safeDeleteDirectory(string $directory)
+    private function safeDeleteDirectory(string $directory): void
     {
         $files = glob($directory . '*', GLOB_MARK);
         foreach ($files as $file) {
@@ -64,7 +63,7 @@ class Unit extends Module
     /**
      * @param string $filename
      */
-    public function safeDeleteFile(string $filename)
+    private function safeDeleteFile(string $filename): void
     {
         if (file_exists($filename) && is_file($filename)) {
             gc_collect_cycles();

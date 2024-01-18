@@ -11,30 +11,30 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger\Logger;
+namespace Phalcon\Proxy\Psr3\Tests\Unit\Logger;
 
 use Phalcon\Logger\Adapter\Stream;
 use Phalcon\Logger\Exception;
 use Phalcon\Proxy\Psr3\Logger;
+use Phalcon\Proxy\Psr3\Tests\Support\Traits\SupportTrait;
 use PHPUnit\Framework\TestCase;
 
-use function logsDir;
+use function file_get_contents;
 
 final class GetAdapterTest extends TestCase
 {
+    use SupportTrait;
+
     /**
      * Tests Phalcon\Logger :: getAdapter()
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerGetAdapter()
     {
-        $I->wantToTest('Logger - getAdapter()');
-        $fileName1  = $I->getNewFileName('log', 'log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
         $adapter1   = new Stream($outputPath . $fileName1);
 
         $logger = new Logger(
@@ -50,44 +50,35 @@ final class GetAdapterTest extends TestCase
         $this->assertInstanceOf($class, $actual);
 
         $adapter1->close();
-        $I->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName1);
     }
 
     /**
      * Tests Phalcon\Logger :: getAdapter() - unknown
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerGetAdapterUnknown()
     {
-        $I->wantToTest('Logger - getAdapter() - unknown');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Adapter does not exist for this logger');
 
-        $I->expectThrowable(
-            new Exception('Adapter does not exist for this logger'),
-            function () {
-                $logger = new Logger('my-logger');
-                $logger->getAdapter('unknown');
-            }
-        );
+        $logger = new Logger('my-logger');
+        $logger->getAdapter('unknown');
     }
 
     /**
      * Tests Phalcon\Logger :: getAdapter() - for transaction
-     *
-     * @param
      *
      * @author Phalcon Team <team@phalcon.io>
      * @since  2020-09-09
      */
     public function testLoggerGetAdapterForTransaction()
     {
-        $I->wantToTest('Logger - getAdapter() - for transaction');
-        $fileName1  = $I->getNewFileName('log', 'log');
-        $fileName2  = $I->getNewFileName('log', 'log');
-        $outputPath = logsDir();
+        $fileName1  = $this->getNewFileName('log');
+        $fileName2  = $this->getNewFileName('log');
+        $outputPath = $this->getLogsDirectory();
 
         $adapter1 = new Stream($outputPath . $fileName1);
         $adapter2 = new Stream($outputPath . $fileName2);
@@ -121,39 +112,36 @@ final class GetAdapterTest extends TestCase
         $logger->info('with');
         $logger->info('Phalcon');
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName1);
-        $I->seeInThisFile('Logging');
-        $I->seeInThisFile('Thanks');
-        $I->seeInThisFile('for');
-        $I->seeInThisFile('Phlying');
-        $I->seeInThisFile('with');
-        $I->seeInThisFile('Phalcon');
+        $contents = file_get_contents($outputPath . $fileName1);
+        $this->assertStringContainsString('Logging', $contents);
+        $this->assertStringContainsString('Thanks', $contents);
+        $this->assertStringContainsString('for', $contents);
+        $this->assertStringContainsString('Phlying', $contents);
+        $this->assertStringContainsString('with', $contents);
+        $this->assertStringContainsString('Phalcon', $contents);
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName2);
-        $I->dontSeeInThisFile('Thanks');
-        $I->dontSeeInThisFile('for');
-        $I->dontSeeInThisFile('Phlying');
-        $I->dontSeeInThisFile('with');
-        $I->dontSeeInThisFile('Phalcon');
+        $contents = file_get_contents($outputPath . $fileName2);
+        $this->assertStringNotContainsString('Thanks', $contents);
+        $this->assertStringNotContainsString('for', $contents);
+        $this->assertStringNotContainsString('Phlying', $contents);
+        $this->assertStringNotContainsString('with', $contents);
+        $this->assertStringNotContainsString('Phalcon', $contents);
 
         $logger->getAdapter('two')
                ->commit()
         ;
 
-        $I->amInPath($outputPath);
-        $I->openFile($fileName2);
-        $I->seeInThisFile('Thanks');
-        $I->seeInThisFile('for');
-        $I->seeInThisFile('Phlying');
-        $I->seeInThisFile('with');
-        $I->seeInThisFile('Phalcon');
+        $contents = file_get_contents($outputPath . $fileName2);
+        $this->assertStringContainsString('Thanks', $contents);
+        $this->assertStringContainsString('for', $contents);
+        $this->assertStringContainsString('Phlying', $contents);
+        $this->assertStringContainsString('with', $contents);
+        $this->assertStringContainsString('Phalcon', $contents);
 
         $adapter1->close();
         $adapter2->close();
 
-        $I->safeDeleteFile($outputPath . $fileName1);
-        $I->safeDeleteFile($outputPath . $fileName2);
+        $this->safeDeleteFile($outputPath . $fileName1);
+        $this->safeDeleteFile($outputPath . $fileName2);
     }
 }
