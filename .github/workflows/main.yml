@@ -137,11 +137,6 @@ jobs:
         with:
           composer-options: "--prefer-dist"
 
-      - name: Setup Tests
-        shell: bash
-        run: |
-          cp config/.env.default .env
-
       - name: Run Unit Tests
         if: always()
         run: |
