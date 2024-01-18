@@ -1,9 +1,9 @@
 FROM composer:latest as composer
-FROM php:8.1-fpm
+FROM php:8.3-fpm
 
 # Environment
 ENV PHALCON_VERSION="5.6.0" \
-    PHP_VERSION="8.1" \
+    PHP_VERSION="8.3" \
     MY_USER="phalcon" \
 	MY_GROUP="phalcon" \
 	MY_UID="1000" \

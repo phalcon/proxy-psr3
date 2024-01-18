@@ -3,14 +3,6 @@
 version: '3'
 
 services:
-  phalcon-7.4:
-    container_name: proxy-psr3-7.4
-    hostname: proxy-psr3-74
-    build: docker/7.4
-    working_dir: /srv
-    volumes:
-      - .:/srv
-
   proxy-psr3-8.0:
     container_name: proxy-psr3-8.0
     hostname: proxy-psr3-80
@@ -23,6 +15,22 @@ services:
     container_name: proxy-psr3-8.1
     hostname: proxy-psr3-81
     build: docker/8.1
+    working_dir: /srv
+    volumes:
+      - .:/srv
+
+  proxy-psr3-8.2:
+    container_name: proxy-psr3-8.2
+    hostname: proxy-psr3-82
+    build: docker/8.2
+    working_dir: /srv
+    volumes:
+      - .:/srv
+
+  proxy-psr3-8.3:
+    container_name: proxy-psr3-8.3
+    hostname: proxy-psr3-83
+    build: docker/8.3
     working_dir: /srv
     volumes:
       - .:/srv

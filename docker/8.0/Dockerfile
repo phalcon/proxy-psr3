@@ -2,7 +2,7 @@ FROM composer:latest as composer
 FROM php:8.0-fpm
 
 # Environment
-ENV PHALCON_VERSION="5.0.2" \
+ENV PHALCON_VERSION="5.6.0" \
     PHP_VERSION="8.0" \
     MY_USER="phalcon" \
 	MY_GROUP="phalcon" \
@@ -29,7 +29,9 @@ RUN apt update -y && \
         zip
 
 # PECL Packages
-RUN pecl install phalcon-${PHALCON_VERSION} xdebug
+RUN pecl install \
+        phalcon-${PHALCON_VERSION} \
+        xdebug
 
 RUN docker-php-ext-install \
         zip
