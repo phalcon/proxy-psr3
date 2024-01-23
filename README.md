@@ -1,6 +1,7 @@
 # Phalcon Framework - Proxy PSR-3
 
-[![Phalcon CI][actions_badge]](https://github.com/phalcon/proxy-psr3/actions/workflows/main.yml) [![codecov][codecov_badge]](https://codecov.io/gh/phalcon/proxy-psr3)
+[![PDS Skeleton][pds_skeleton]](https://github.com/php-pds/skeleton)
+[![Phalcon CI][actions_badge]](https://github.com/phalcon/proxy-psr3/actions/workflows/main.yml)
 
 Phalcon is an open source web framework delivered as a C extension for the PHP language providing high performance and lower resource consumption.
 
@@ -36,5 +37,5 @@ composer require phalcon/proxy-psr3
 <!-- External links should be here -->
 [actions_badge]: https://github.com/phalcon/proxy-psr3/actions/workflows/main.yml/badge.svg
 [codecov_badge]: https://codecov.io/gh/phalcon/proxy-psr3/branch/master/graph/badge.svg?token=J2WQtnpAyT
-
-[discord-badge]:            https://img.shields.io/discord/310910488152375297?label=Discord&logo=discord&style=flat-square
+[pds_skeleton]: https://img.shields.io/badge/pds-skeleton-blue.svg?style=flat-square
+[discord-badge]: https://img.shields.io/discord/310910488152375297?label=Discord&logo=discord&style=flat-square

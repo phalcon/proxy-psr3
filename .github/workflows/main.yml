@@ -19,7 +19,7 @@ on:
 
 env:
   # All versions should be declared here
-  PHALCON_VERSION: 5.0.2
+  PHALCON_VERSION: 5.6.0
 
   # For tests
   LANG: en_US.UTF-8
@@ -28,38 +28,54 @@ env:
 
   # PHP extensions required by Composer
   # (adding phalcon version here until I figure out how to use the variable above)
-  EXTENSIONS: apcu, gettext, gd, igbinary, imagick, intl, json, mbstring, msgpack, memcached, phalcon-5.0.2, sqlite3, yaml, redis, :memcache
+  EXTENSIONS: apcu, phalcon-5.6.0
 
 jobs:
-  phpcs:
-    name: Validate Tests code style
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
 
-    runs-on: ubuntu-20.04
+# Quality Tools
+  quality:
+    name: Quality Tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # to fetch code (actions/checkout)
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+#      - uses: php-actions/composer@v6
 
-      - name: Run PHP_CodeSniffer
+      - name: Run PHP CodeSniffer
         run: docker run --rm -v $(pwd):/data cytopia/phpcs --standard=./phpcs.xml
 
+#      - name: Get PHPStan PHAR
+#        run: |
+#          curl --silent -H "User-agent: cURL (https://github.com/php-actions)" -L \
+#          "https://www.getrelease.download/phpstan/phpstan/1.8.11/phar" > custom-phpstan.phar
+#
+#      - name: Run PHPStan
+#        uses: php-actions/phpstan@v3
+#        with:
+#          php_version: 8.0
+#          path: src/
+#          vendored_phpstan_path: custom-phpstan.phar
+#          level: max
+#          autoload_file: ./vendor/autoload.php
+
+# Running Tests
   build-and-test:
     name: tests / PHP-${{ matrix.php }}
-
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # to fetch code (actions/checkout)
+
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.4', '8.0', '8.1' ]
+        php: [ '8.0', '8.1', '8.2', '8.3' ]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup platform specific environment
-        shell: pwsh
-        run: |
-          git config --global core.autocrlf false
-          $SessionSavePath = '/tmp' 
-          Write-Output "SESSION_SAVE_PATH=$SessionSavePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -67,43 +83,79 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.EXTENSIONS }}
           ini-values: apc.enable_cli=on, session.save_path=${{ env.SESSION_SAVE_PATH }}
-          tools: pecl, phpize, php-config, composer:v2
+          tools: pecl, composer:v2
           coverage: xdebug
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate composer
+      - name: "Validate composer"
         run: composer validate --no-check-all --no-check-publish
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Setup Composer Cache
-        uses: actions/cache@v2
+      - name: "Install development dependencies with Composer"
+        uses: "ramsey/composer-install@v2"
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.php }}-
-
-      - run: composer install --prefer-dist
-
-      - name: Setup Tests
-        shell: bash
-        run: |
-          cp tests/_config/.env.default .env
-          vendor/bin/codecept build
-#          php tests/_config/generate-db-schemas.php
+          composer-options: "--prefer-dist"
 
       - name: Run Unit Tests
         if: always()
-        run: vendor/bin/codecept run --coverage-xml=coverage-${{ matrix.php }}.xml --ext DotReporter unit
+        run: |
+          vendor/bin/phpunit tests/unit --testdox --process-isolation -v 
 
-      - name: Upload coverage to Codecov
-        if: success()
-        uses: codecov/codecov-action@v3
+
+# Qodana
+  qodana:
+    name: Qodana
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+
+    steps:
+      - uses: actions/checkout@v3
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
-          directory: ./tests/_output/
-          files: coverage-7.4.xml,coverage-8.0.xml,coverage-8.1.xml
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          extensions: ${{ env.EXTENSIONS }}
+          ini-values: apc.enable_cli=on, session.save_path=${{ env.SESSION_SAVE_PATH }}
+          tools: pecl, composer:v2
+          coverage: xdebug
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Validate composer"
+        run: composer validate --no-check-all --no-check-publish
+
+      - name: "Install development dependencies with Composer"
+        uses: "ramsey/composer-install@v2"
+        with:
+          composer-options: "--prefer-dist"
+
+      - name: Run Unit Tests
+        if: always()
+        run: |
+          vendor/bin/phpunit tests/unit \
+            --process-isolation \
+            -v \
+            --coverage-php tests/support/output/coverage.xml
+
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2023.2
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          args: --baseline,qodana.sarif.json
+
+      - name: "Upload to Qodana"
+        run: |
+          docker run \
+            -v $(pwd):/data/project/ \
+            -v ./tests/support/output/:/data/coverage \
+            -e QODANA_TOKEN="${{ secrets.QODANA_TOKEN }}" \
+            jetbrains/qodana-php

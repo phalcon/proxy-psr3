@@ -9,15 +9,13 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=7.4 <9.0",
-        "psr/log": "^1.1"
+        "php": ">=8.0 <9.0",
+        "psr/log": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "Phalcon\\Logger\\": "fake/Logger/",
-            "Phalcon\\Traits\\": "fake/Traits/",
             "Phalcon\\Proxy\\Psr3\\": "src/",
-            "Phalcon\\Proxy\\Psr3\\Tests\\Fixtures\\": "tests/_data/fixtures/",
+            "Phalcon\\Proxy\\Psr3\\Tests\\Support\\": "tests/support/",
             "Phalcon\\Proxy\\Psr3\\Tests\\Unit\\": "tests/unit/"
         }
     },
@@ -27,14 +25,20 @@
         "sort-packages": true
     },
     "require-dev": {
-        "codeception/codeception": "^4.1",
-        "codeception/module-asserts": "^2.0",
-        "codeception/module-filesystem": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.7",
         "pds/skeleton": "^1.0",
-        "phalcon/ide-stubs": "^5.0",
-        "phpstan/phpstan": "^1.4",
-        "squizlabs/php_codesniffer": "^3.6",
-        "vimeo/psalm": "^4.22"
+        "phalcon/ide-stubs": "^5.6",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^9.6",
+        "squizlabs/php_codesniffer": "^3.8",
+        "vimeo/psalm": "^5.19",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "scripts": {
+        "cs": "phpcs --standard=phpcs.xml",
+        "cs-fix": "phpcbf --standard=phpcs.xml",
+        "test-unit": "phpunit tests/unit --testdox --process-isolation -v",
+        "test-coverage-text": "phpunit tests/unit --testdox --process-isolation -v --coverage-text",
+        "test-coverage-clover": "phpunit tests/unit --testdox --process-isolation -v --coverage-clover tests/support/output/clover.xml",
+        "test-coverage-html": "phpunit tests/unit --testdox --process-isolation -v --coverage-html tests/support/output/"
     }
 }

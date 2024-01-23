@@ -16,8 +16,10 @@ namespace Phalcon\Proxy\Psr3;
 use Phalcon\Logger\AbstractLogger;
 use Phalcon\Logger\Adapter\AdapterInterface;
 use Phalcon\Logger\Exception as LoggerException;
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
+use Stringable;
 
 /**
  * Phalcon Proxy PSR-3.
@@ -37,13 +39,15 @@ class Logger extends AbstractLogger implements LoggerInterface
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed $level
-     * @param mixed $message
-     * @param array $context
+     * @param mixed             $level
+     * @param string|Stringable $message
+     * @param mixed[]           $context
      *
-     * @throws LoggerException
+     * @return void
+     *
+     * @throws InvalidArgumentException
      */
-    public function log($level, $message, array $context = []): void
+    public function log($level, string| Stringable $message, array $context = []): void
     {
         $intLevel = $this->getLevelNumber($level);
 
