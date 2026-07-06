@@ -8,6 +8,7 @@
         "psr-3"
     ],
     "license": "MIT",
+    "abandoned": "phalcon/bridge-psr3",
     "require": {
         "php": ">=8.0 <9.0",
         "psr/log": "^3.0"
