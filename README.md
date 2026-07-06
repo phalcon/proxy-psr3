@@ -1,5 +1,7 @@
 # Phalcon Framework - Proxy PSR-3
 
+**DEPRECATED** Please use phalcon/bridge-psr3
+
 [![PDS Skeleton][pds_skeleton]](https://github.com/php-pds/skeleton)
 [![Phalcon CI][actions_badge]](https://github.com/phalcon/proxy-psr3/actions/workflows/main.yml)
 
